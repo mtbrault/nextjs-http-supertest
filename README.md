@@ -5,15 +5,15 @@ This package do several things:
 * Link your handler with the HTTP endpoint
 * When performing a request with `supertest`, parsing the URL and the query parameters to call the correct handler.
 
-It returns a function which takes only one parameter: your `pages` nextJS folder.
+Requirement: Your api handlers must be located under `pages/api` or `src/pages/api` at the root of your nextJS repository.
+
+It returns an http server instance (do not forget to close it after running your test suite).
 
 Example below in a `toto.test.js` jest file.
 
 ```javascript
 import request from 'supertest';
-import getServer from 'nextjs-http-supertest';
-
-const server = getServer('../src/pages');
+import server from 'nextjs-http-supertest';
 
 describe('my super test suite', () => {
 
