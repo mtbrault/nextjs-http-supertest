@@ -28,3 +28,5 @@ describe('my super test suite', () => {
     })
 })
 ```
+
+It handles typescript
