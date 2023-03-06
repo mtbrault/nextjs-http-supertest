@@ -11,52 +11,72 @@ const handlers = glob.sync(`${nextPagesDirectory}/api/**/*.+(ts|js)`).map((handl
 
 const mapping = {};
 handlers.forEach((handler) => {
-    const key = handler.endsWith('/index') ? handler.slice(0, -6) : handler; // handle index routes 
-    mapping[key] = require(`${nextPagesDirectory}${handler}`);
+  const key = handler.endsWith('/index') ? handler.slice(0, -6) : handler; // handle index routes
+  mapping[key] = require(`${nextPagesDirectory}${handler}`);
 });
 
-function getHandler(url){
-  const handler = mapping[url];
-    
-  if(handler) {
-    return { handler };
-  }
+function getDynamicRounte(routes, url) {
+  const urlSplit = url.split('/');
 
-  const lastSlashIndex = url.lastIndexOf('/');
-  const basePath = url.slice(0, lastSlashIndex + 1);
-  const keys = Object.keys(mapping);
-  const key = keys.find(key => key.startsWith(basePath + '[') && key.endsWith(']')); // handle dynamic routes 
+  for (const route of routes) {
+    const routeParams = {};
+    const routeSplit = route.split('/');
 
-  if(key) {
-    const routeParameterKey = key.split('[')[1].replace(']', '');
-    const routeParameterValue = url.slice(lastSlashIndex + 1);
+    for (let index = 0; index < routeSplit.length; index++) {
+      const routePath = routeSplit[index];
+      const urlPath = urlSplit[index];
 
-    return {
-      handler: mapping[key],
-      routeParams: {
-        [routeParameterKey]: routeParameterValue
+      if (routePath.startsWith('[') && routePath.endsWith(']')) { // if its a dynamic sub-path extend the route params
+        routeParams[routePath.substring(1, routePath.length - 1)] = urlPath;
+      } else if (routePath !== urlPath) {
+        break; // if the path does not match, check a new route
       }
-    };
+
+      if (index === routeSplit.length - 1) {
+        return {
+          route,
+          routeParams
+        };
+      }
+    }
   }
 }
 
+function getHandler(url) {
+  const handler = mapping[url];
+
+  if (handler) {
+    return { handler };
+  }
+  
+  const routes = Object.keys(mapping);
+  const dynamicRoutes = routes.filter(route => route.includes('[') && route.includes(']'));
+
+  const { route, routeParams } = getDynamicRounte(dynamicRoutes, url);
+  
+  return {
+    handler: mapping[route],
+    routeParams,
+  };
+}
+
 const requestHandler = (
-    request,
-    response,
+  request,
+  response,
 ) => {
-    const [url, queryParams] = request.url.split('?');
-    const params = new URLSearchParams(queryParams);
-    const query = Object.fromEntries(params);
-    const { handler, routeParams } = getHandler(url);
-    
-    return apiResolver(
-        Object.assign(request, { connection: { remoteAddress: '127.0.0.1' } }),
-        response,
-        { ...query, ...routeParams },
-        handler,
-        undefined,
-        true,
-    );
+  const [url, queryParams] = request.url.split('?');
+  const params = new URLSearchParams(queryParams);
+  const query = Object.fromEntries(params);
+  const { handler, routeParams } = getHandler(url);
+
+  return apiResolver(
+    Object.assign(request, { connection: { remoteAddress: '127.0.0.1' } }),
+    response,
+    { ...query, ...routeParams },
+    handler,
+    undefined,
+    true,
+  );
 };
 
 const server = http.createServer(requestHandler);
