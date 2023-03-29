@@ -15,10 +15,10 @@ handlers.forEach((handler) => {
   mapping[key] = require(`${nextPagesDirectory}${handler}`);
 });
 
-function getDynamicRounte(routes, url) {
+const getDynamicRounte = (routes, url) => {
   const urlSplit = url.split('/');
 
-  for (const route of routes) {
+  routes.forEach((route) => {
     const routeParams = {};
     const routeSplit = route.split('/');
 
@@ -39,10 +39,10 @@ function getDynamicRounte(routes, url) {
         };
       }
     }
-  }
+  });
 }
 
-function getHandler(url) {
+const getHandler = (url) => {
   const handler = mapping[url];
 
   if (handler) {
