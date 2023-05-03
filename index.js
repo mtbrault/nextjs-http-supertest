@@ -51,6 +51,7 @@ const getHandler = (url) => {
   
   const routes = Object.keys(mapping);
   const dynamicRoutes = routes.filter(route => route.includes('[') && route.includes(']'));
+  dynamicRoutes.sort((a, b) => b.length - a.length) // Most specific routes take precedence
 
   const { route, routeParams } = getDynamicRoute(dynamicRoutes, url);
   
