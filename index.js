@@ -3,6 +3,7 @@ const glob = require('glob');
 const path = require('path');
 const fs = require('fs');
 const { apiResolver } = require('next/dist/server/api-utils/node');
+const { inspect } = require('node:util')
 
 const rootPath = path.resolve('.');
 const nextPagesDirectory = fs.existsSync(`${rootPath}/pages`) ? `${rootPath}/pages` : `${rootPath}/src/pages`;
@@ -64,19 +65,28 @@ const requestHandler = (
   request,
   response,
 ) => {
-  const [url, queryParams] = request.url.split('?');
-  const params = new URLSearchParams(queryParams);
-  const query = Object.fromEntries(params);
-  const { handler, routeParams } = getHandler(url);
+  try {
+    const [url, queryParams] = request.url.split('?');
+    const params = new URLSearchParams(queryParams);
+    const query = Object.fromEntries(params);
+    const { handler, routeParams } = getHandler(url);
 
-  return apiResolver(
-    Object.assign(request, { connection: { remoteAddress: '127.0.0.1' } }),
-    response,
-    { ...query, ...routeParams },
-    handler,
-    undefined,
-    true,
-  );
+    return apiResolver(
+      Object.assign(request, { connection: { remoteAddress: '127.0.0.1' } }),
+      response,
+      { ...query, ...routeParams },
+      handler,
+      undefined,
+      true,
+    );
+  } catch (err) {
+    const message = `Error handling request in nextjs-http-supertest: ${inspect(
+      err,
+    )}`;
+    console.error(message);
+    response.writeHead(500, { 'content-type': 'application/json' });
+    response.end(JSON.stringify({ message }));
+  }
 };
 
 const server = http.createServer(requestHandler);
