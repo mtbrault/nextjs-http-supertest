@@ -19,7 +19,7 @@ handlers.forEach((handler) => {
 const getDynamicRoute = (routes, url) => {
   const urlSplit = url.split('/');
 
-  routes.forEach((route) => {
+  for (const route of routes) {
     const routeParams = {};
     const routeSplit = route.split('/');
 
@@ -40,7 +40,7 @@ const getDynamicRoute = (routes, url) => {
         };
       }
     }
-  });
+  }
 }
 
 const getHandler = (url) => {

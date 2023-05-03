@@ -1,6 +1,6 @@
 {
   "name": "nextjs-http-supertest",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "npm package to get an http server parsing your nextJS app to link endpoint with handler",
   "main": "index.js",
   "types": "index.d.ts",
