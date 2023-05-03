@@ -15,7 +15,7 @@ handlers.forEach((handler) => {
   mapping[key] = require(`${nextPagesDirectory}${handler}`);
 });
 
-const getDynamicRounte = (routes, url) => {
+const getDynamicRoute = (routes, url) => {
   const urlSplit = url.split('/');
 
   routes.forEach((route) => {
@@ -52,7 +52,7 @@ const getHandler = (url) => {
   const routes = Object.keys(mapping);
   const dynamicRoutes = routes.filter(route => route.includes('[') && route.includes(']'));
 
-  const { route, routeParams } = getDynamicRounte(dynamicRoutes, url);
+  const { route, routeParams } = getDynamicRoute(dynamicRoutes, url);
   
   return {
     handler: mapping[route],
