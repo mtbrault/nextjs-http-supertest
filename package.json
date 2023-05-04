@@ -1,6 +1,6 @@
 {
   "name": "nextjs-http-supertest",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "npm package to get an http server parsing your nextJS app to link endpoint with handler",
   "main": "index.js",
   "types": "index.d.ts",
@@ -11,7 +11,11 @@
     "type": "git",
     "url": "git+https://github.com/mtbrault/nextjs-http-supertest.git"
   },
-  "keywords": ["NextJS", "supertest", "jest"],
+  "keywords": [
+    "NextJS",
+    "supertest",
+    "jest"
+  ],
   "author": "mtbrault",
   "license": "ISC",
   "bugs": {
@@ -21,6 +25,6 @@
   "dependencies": {
     "glob": "^8.1.0",
     "http": "^0.0.1-security",
-    "next": "^13.1.2"
+    "next": "^13.3.4"
   }
 }
