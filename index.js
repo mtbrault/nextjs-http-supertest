@@ -23,6 +23,10 @@ const getDynamicRoute = (routes, url) => {
     const routeParams = {};
     const routeSplit = route.split('/');
 
+    if (routeSplit.length !== urlSplit.length) {
+      continue;
+    }
+
     for (let index = 0; index < routeSplit.length; index++) {
       const routePath = routeSplit[index];
       const urlPath = urlSplit[index];
