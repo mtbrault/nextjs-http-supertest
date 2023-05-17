@@ -5,7 +5,7 @@ const fs = require('fs');
 const { apiResolver } = require('next/dist/server/api-utils/node');
 const { inspect } = require('node:util')
 
-const rootPath = path.resolve('.');
+const rootPath = path.resolve('.').replace(/\\/g, '/');
 const nextPagesDirectory = fs.existsSync(`${rootPath}/pages`) ? `${rootPath}/pages` : `${rootPath}/src/pages`;
 
 const handlers = glob.sync(`${nextPagesDirectory}/api/**/*.+(ts|js)`).map((handler) => handler.slice(nextPagesDirectory.length, -3));
