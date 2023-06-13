@@ -8,7 +8,10 @@ const { inspect } = require('node:util')
 const rootPath = path.resolve('.').replace(/\\/g, '/');
 const nextPagesDirectory = fs.existsSync(`${rootPath}/pages`) ? `${rootPath}/pages` : `${rootPath}/src/pages`;
 
-const handlers = glob.sync(`${nextPagesDirectory}/api/**/*.+(ts|js)`).map((handler) => handler.slice(nextPagesDirectory.length, -3));
+const handlers = glob
+  .sync(`${nextPagesDirectory}/api/**/*.+(ts|js)`)
+  .map((handler) => handler.slice(nextPagesDirectory.length, -3))
+  .filter((handler) => !handler.includes('.test') && !handler.includes('.spec'));
 
 const mapping = {};
 handlers.forEach((handler) => {
