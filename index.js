@@ -2,7 +2,15 @@ const http = require('http');
 const glob = require('glob');
 const path = require('path');
 const fs = require('fs');
-const { apiResolver } = require('next/dist/server/api-utils/node');
+const {apiResolver} = (() => {
+  try {
+    // Moved here in v13.5 - ref: https://github.com/vercel/next.js/pull/56096
+    return require('next/dist/server/api-utils/node/api-resolver');
+  } catch (err) {
+    // Previously lived here
+    return require('next/dist/server/api-utils/node');
+  }
+})()
 const { inspect } = require('node:util')
 
 const rootPath = path.resolve('.').replace(/\\/g, '/');
