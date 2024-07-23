@@ -2,7 +2,7 @@ const http = require('http');
 const glob = require('glob');
 const path = require('path');
 const fs = require('fs');
-const {apiResolver} = (() => {
+const { apiResolver } = (() => {
   try {
     // Moved here in v13.5 - ref: https://github.com/vercel/next.js/pull/56096
     return require('next/dist/server/api-utils/node/api-resolver');
@@ -14,17 +14,29 @@ const {apiResolver} = (() => {
 const { inspect } = require('node:util')
 
 const rootPath = path.resolve('.').replace(/\\/g, '/');
-const nextPagesDirectory = fs.existsSync(`${rootPath}/pages`) ? `${rootPath}/pages` : `${rootPath}/src/pages`;
+const { pageExtensions } = require(`${rootPath}/next.config.js`);
+const nextPagesDirectory = fs.existsSync(`${rootPath}/pages`) ?
+  `${rootPath}/pages` :
+  `${rootPath}/src/pages`;
 
 const handlers = glob
   .sync(`${nextPagesDirectory}/api/**/*.+(ts|js)`)
-  .map((handler) => handler.slice(nextPagesDirectory.length, -3))
   .filter((handler) => !handler.includes('.test') && !handler.includes('.spec'));
 
 const mapping = {};
-handlers.forEach((handler) => {
-  const key = handler.endsWith('/index') ? handler.slice(0, -6) : handler; // handle index routes
-  mapping[key] = require(`${nextPagesDirectory}${handler}`);
+handlers.forEach((handler) => { // still got the .js
+  const handlerName = handler.slice(nextPagesDirectory.length, -3);
+  const handlerFunction = require(`${nextPagesDirectory}/${handlerName}`)
+
+  let key = handlerName;
+  for (const ext of pageExtensions) {
+    if (handler.endsWith(ext)) {
+      key = handler.slice(nextPagesDirectory.length, -ext.length - 1);
+      key = key.endsWith("/index") ? key.slice(0, -6) : key;
+      break;
+    }
+  }
+  mapping[key] = handlerFunction;
 });
 
 const getDynamicRoute = (routes, url) => {
@@ -64,13 +76,13 @@ const getHandler = (url) => {
   if (handler) {
     return { handler };
   }
-  
+
   const routes = Object.keys(mapping);
   const dynamicRoutes = routes.filter(route => route.includes('[') && route.includes(']'));
   dynamicRoutes.sort((a, b) => b.length - a.length) // Most specific routes take precedence
 
   const { route, routeParams } = getDynamicRoute(dynamicRoutes, url);
-  
+
   return {
     handler: mapping[route],
     routeParams,
