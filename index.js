@@ -10,11 +10,25 @@ const { apiResolver } = (() => {
     // Previously lived here
     return require('next/dist/server/api-utils/node');
   }
-})()
-const { inspect } = require('node:util')
+})();
+const { default: loadConfig } = require('next/dist/server/config');
+const { inspect } = require('node:util');
+const { PHASE_TEST } = require('next/constants');
 
 const rootPath = path.resolve('.').replace(/\\/g, '/');
-const { pageExtensions } = require(`${rootPath}/next.config.js`);
+
+let pageExtensions = ['ts', 'js'];
+if (fs.existsSync(`${rootPath}/next.config.js`)) {
+  try {
+    const { pageExtensions: configExtensions } = loadConfig(PHASE_TEST, rootPath);
+    if (configExtensions) {
+      pageExtensions = configExtensions;
+    }
+  } catch (error) {
+    console.warn('could not load pageExtensions config from next, using .ts and .js as default');
+  }
+}
+
 const nextPagesDirectory = fs.existsSync(`${rootPath}/pages`) ?
   `${rootPath}/pages` :
   `${rootPath}/src/pages`;
